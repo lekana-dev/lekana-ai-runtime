@@ -8,6 +8,7 @@ import { callService, callServiceWithUrl, ServiceRequest, ServiceResponse } from
 import { getActionDetails } from './action-lookup.service';
 import { incrementTokenUsage } from './usage.service';
 import { logWorkflow, logExecution, logNodeExecution, logSeparator, logDebug, isLogEnabled } from './logger';
+import { runInBackground } from '../utils/background';
 import { emitExecutionStarted, emitExecutionUpdated, emitNodeStarted, emitNodeCompleted, emitNodeFailed, emitNodeSkipped, emitDocumentsSkipped } from './sse.service';
 
 const prisma = new PrismaClient();
@@ -517,7 +518,7 @@ export async function executeWorkflowWithInput(
 
     // Run the actual workflow execution in the background
     // This allows the API to return immediately with the execution ID
-    setImmediate(async () => {
+    runInBackground(async () => {
         const context: ExecutionContext = {
             workflowExecutionId: execution.id,
             nodeOutputs: new Map()
